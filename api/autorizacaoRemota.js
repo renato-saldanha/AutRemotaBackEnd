@@ -8,27 +8,27 @@ module.exports = (app) => {
         "A.ID_AUTORIZACAO, A.DATA, A.ID_PROCESSO, U.ID_USUARIO, U.NOME_USUARIO USUARIO, A.AUTORIZADO"
       )
       .leftJoin("PROCESSOS as P", function () {
-        this.on("P.ID_SISTEMA", "=", "'SOLUTION'").andOn(
+        this.on("P.ID_SISTEMA", "'SOLUTION'").andOn(
           "P.ID_PROCESSO",
           "=",
           "A.ID_PROCESSO"
         );
       })
       .leftJoin("PROCESSOS_DIREITOS as PD", function () {
-        this.on("PD.ID_SISTEMA", "=", "P.ID_SISTEMA")
-          .andOn("PD.ID_PROCESSO", "=", "P.ID_PROCESSO")
-          .andOn("PD.ID_DIREITO", "=", "A.ID_DIREITO");
+        this.on("PD.ID_SISTEMA", "P.ID_SISTEMA")
+          .andOn("PD.ID_PROCESSO", "P.ID_PROCESSO")
+          .andOn("PD.ID_DIREITO", "A.ID_DIREITO");
       })
       .leftJoin("USUARIOS as U", function () {
-        this.on("U.ID_EMPRESA", "=", "A.ID_EMPRESA")
-          .andOn("U.ID_FILIAL", "=", "A.ID_FILIAL")
-          .andOn("U.ID_USUARIO", "=", "A.ID_USUARIO");
+        this.on("U.ID_EMPRESA", "A.ID_EMPRESA")
+          .andOn("U.ID_FILIAL", "A.ID_FILIAL")
+          .andOn("U.ID_USUARIO", "A.ID_USUARIO");
       })
       .leftJoin("USUARIOS as UGS", function () {
-        this.on("UGS.ID_EMPRESA", "=", "A.ID_EMPRESA")
-          .andOn("UGS.ID_FILIAL", "=", "A.ID_FILIAL")
-          .andOn("UGS.ID_USUARIO", "=", "A.ID_GERENTE_GRUPO")
-          .orOn("UGS.ID_USUARIO", "=", "A.ID_SUPERVISOR_GRUPO");
+        this.on("UGS.ID_EMPRESA", "A.ID_EMPRESA")
+          .andOn("UGS.ID_FILIAL", "A.ID_FILIAL")
+          .andOn("UGS.ID_USUARIO", "A.ID_GERENTE_GRUPO")
+          .orOn("UGS.ID_USUARIO", "A.ID_SUPERVISOR_GRUPO");
       })
       .leftJoin(
         "GRUPO_USUARIOS as GU",
