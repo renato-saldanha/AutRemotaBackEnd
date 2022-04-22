@@ -5,7 +5,8 @@ module.exports = (app) => {
     app
       .db("AUTORIZACOES as A")
       .select(
-        "A.ID_AUTORIZACAO, A.DATA, A.ID_PROCESSO, U.ID_USUARIO, U.NOME_USUARIO USUARIO, A.AUTORIZADO"
+        `${app.db.raw(colunaOperacao)} F.ID_FILIAL, F.RAZAO_SOCIAL, A.ID_AUTORIZACAO, A.DATA, A.ID_PROCESSO, U.ID_USUARIO, 
+        U.NOME_USUARIO USUARIO, A.AUTORIZADO`
       )
       .leftJoin("PROCESSOS as P", function () {
         this.on("P.ID_SISTEMA", "'SOLUTION'").andOn(
@@ -36,12 +37,19 @@ module.exports = (app) => {
         "=",
         "UGS.ID_GRUPO_REFERENCIA"
       )
+      .leftJoin("FILIAIS as F", function () {
+        this.on("F.ID_EMPRESA", "A.ID_EMPRESA").andOn(
+          "F.ID_FILIAL",
+          "A.ID_FILIAL"
+        );
+      })
       .whereNull("A.AUTORIZADO")
       .where("UGS.ID_USUARIO", parseInt(id_usuario))
+      .orderBy('A.ID_AUTORIZACAO')
       .then((a) => res.json(a))
       .catch((err) => res.status(401).json("Houve um erro: " + err));
   };
-
+  
   const processarSolicitacao = (req, res) => {
     const id_autorizacao = req.params.id_autorizacao;
     const autorizado = req.params.autorizado;
@@ -53,5 +61,17 @@ module.exports = (app) => {
       .then((_) => res.status(200).send("Solicitação processada!"))
       .catch((err) => res.status(401).json(err));
   };
+
+  const colunaOperacao = 
+  ` CASE WHEN (A.ID_PROCESSO = 'LIB_DESC_TERM')           THEN 'LIB. DE DESCONTO NO TERMINAL'
+         WHEN (A.ID_PROCESSO = 'LIB_DESC_PREVEN')         THEN 'LIB. DE DESCONTO NA PREVENDA'
+         WHEN (A.ID_PROCESSO = 'LIB_DESC_TIT')            THEN 'LIB. DESC. DE TITULOS'
+         WHEN (A.ID_PROCESSO = 'LIB_MULTA_TIT')           THEN 'LIB. MULTA DE TITULOS'
+         WHEN (A.ID_PROCESSO = 'LIB_JUROS_TIT')           THEN 'LIB. JUROS DE TITULOS'
+         WHEN (A.ID_PROCESSO = 'LIB_VAL_MIN_PARC_PREVEN') THEN 'LIB. VALOR MIN. PARC. PREVENDA'
+         WHEN (A.ID_PROCESSO = 'IGNORAR_RECEITA_MED')     THEN 'IGNORAR RECEITA MEDICA'
+         ELSE P.DESCRICAO || ' ' || PD.DESCRICAO                                                                     
+    END OPERACAO, `;   
+
   return { listarAutorizacoesPendentes, processarSolicitacao };
 };
