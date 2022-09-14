@@ -5,13 +5,13 @@ module.exports = {
   connection: {
     host: "10.1.11.77",
     port: 3050,
-    user: "sysdba",
+    user: "SYSDBA",
     password: "vectordba",
-    database: "C:/FDB/DENTALPRADO21.fdb",
+    database: "C:/FDB/DENTALPRADO.fdb",
     schemaName: "Denta_Prado",
     lowercase_keys: true,
   },
-  creteDatabaseIfNoExists: true,
+  createDatabaseIfNoExists: true,
   debug: false,
   pool: {
     min: 2,
